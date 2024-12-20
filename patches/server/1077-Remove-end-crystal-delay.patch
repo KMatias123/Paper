@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Matias <KMatias1@protonmail.com>
+Date: Fri, 20 Dec 2024 14:30:42 +0200
+Subject: [PATCH] Remove end crystal delay
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/boss/enderdragon/EndCrystal.java b/src/main/java/net/minecraft/world/entity/boss/enderdragon/EndCrystal.java
+index 7cb3d69a69e0e3ef4b7f9f9c8b1eb67edb5d116d..b9822d73dae893ce2fd9e568c6d14e1690746223 100644
+--- a/src/main/java/net/minecraft/world/entity/boss/enderdragon/EndCrystal.java
++++ b/src/main/java/net/minecraft/world/entity/boss/enderdragon/EndCrystal.java
+@@ -5,10 +5,12 @@ import javax.annotation.Nullable;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.nbt.NbtUtils;
++import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
+ import net.minecraft.network.syncher.EntityDataAccessor;
+ import net.minecraft.network.syncher.EntityDataSerializers;
+ import net.minecraft.network.syncher.SynchedEntityData;
+ import net.minecraft.server.level.ServerLevel;
++import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.tags.DamageTypeTags;
+ import net.minecraft.world.damagesource.DamageSource;
+ import net.minecraft.world.entity.Entity;
+@@ -135,6 +137,11 @@ public class EndCrystal extends Entity {
+                     if (event.isCancelled()) {
+                         return false;
+                     }
++                    // Paper start - remove end crystal removal from client delay
++                    if (source.getEntity() instanceof ServerPlayer) {
++                        ((ServerPlayer) source.getEntity()).connection.send(new ClientboundRemoveEntitiesPacket(this.getId()));
++                    }
++                    // Paper end
+ 
+                     this.remove(Entity.RemovalReason.KILLED, EntityRemoveEvent.Cause.EXPLODE); // CraftBukkit - add Bukkit remove cause
+                     world.explode(this, damagesource1, (ExplosionDamageCalculator) null, this.getX(), this.getY(), this.getZ(), event.getRadius(), event.getFire(), Level.ExplosionInteraction.BLOCK);
